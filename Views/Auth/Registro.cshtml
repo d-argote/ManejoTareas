@@ -1,0 +1,47 @@
+@model ManejoTareas.DTOs.RegistroDto
+@{
+    ViewData["Title"] = "Registro";
+}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Crear cuenta</h4>
+            </div>
+            <div class="card-body">
+                @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Administrador"))
+                {
+                    <div class="alert alert-warning">Ya estas autenticado. Solo el administrador puede crear mas usuarios desde <a asp-controller="Usuarios" asp-action="Create">Usuarios &raquo; Nuevo</a>.</div>
+                }
+                <form asp-action="Registro" method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Contrasena</label>
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label">Confirmar contrasena</label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Registrarme</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a asp-action="Login">Ya tengo cuenta</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
