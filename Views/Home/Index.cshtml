@@ -1,0 +1,45 @@
+﻿@model List<ManejoTareas.DTOs.TareaDto>?
+@{
+    ViewData["Title"] = "Home Page";
+    var tareas = Model ?? new List<ManejoTareas.DTOs.TareaDto>();
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Mis Tareas</h1>
+        <a asp-controller="Task" asp-action="Index" class="btn btn-primary">Ver todas</a>
+    </div>
+
+    @if (tareas.Count == 0)
+    {
+        <div class="alert alert-info">No hay tareas aun. <a asp-controller="Task" asp-action="Create">Crea una</a>.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var tarea in tareas.Take(3))
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card @(tarea.Completada ? "border-success" : "")">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title @(tarea.Completada ? "text-decoration-line-through text-muted" : "")">@tarea.Titulo</h5>
+                                <span class="badge @(tarea.Completada ? "bg-success" : "bg-warning text-dark")">
+                                    @(tarea.Completada ? "Completada" : "Pendiente")
+                                </span>
+                            </div>
+                            <p class="card-text">@tarea.Descripcion</p>
+                            <small class="text-muted">Creada: @tarea.FechaCreacion.ToShortDateString()</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        @if (tareas.Count > 3)
+        {
+            <div class="text-center mt-3">
+                <a asp-controller="Task" asp-action="Index" class="btn btn-outline-primary">Ver @tareas.Count tareas &raquo;</a>
+            </div>
+        }
+    }
+</div>

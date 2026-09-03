@@ -1,0 +1,59 @@
+@model List<ManejoTareas.DTOs.TareaDto>
+@{
+    ViewData["Title"] = "Lista de Tareas";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>@ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-primary">Nueva Tarea</a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">No hay tareas. <a asp-action="Create">Crea la primera</a>.</div>
+    }
+    else
+    {
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Titulo</th>
+                    <th>Descripcion</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tarea in Model)
+                {
+                    <tr class="@(tarea.Completada ? "table-success" : "")">
+                        <td>@tarea.Id</td>
+                        <td class="@(tarea.Completada ? "text-decoration-line-through" : "")">@tarea.Titulo</td>
+                        <td>@tarea.Descripcion</td>
+                        <td>
+                            <span class="badge @(tarea.Completada ? "bg-success" : "bg-warning text-dark")">
+                                @(tarea.Completada ? "Completada" : "Pendiente")
+                            </span>
+                        </td>
+                        <td>@tarea.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@tarea.Id" class="btn btn-sm btn-info">Ver</a>
+                            <a asp-action="Edit" asp-route-id="@tarea.Id" class="btn btn-sm btn-warning">Editar</a>
+                            <form asp-action="ToggleCompletada" asp-route-id="@tarea.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm @(tarea.Completada ? "btn-secondary" : "btn-success")">
+                                    @(tarea.Completada ? "Deshacer" : "Completar")
+                                </button>
+                            </form>
+                            <form asp-action="Delete" asp-route-id="@tarea.Id" method="post" class="d-inline" onsubmit="return confirm('Eliminar esta tarea?')">
+                                <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
