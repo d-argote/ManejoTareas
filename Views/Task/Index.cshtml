@@ -3,11 +3,19 @@
     ViewData["Title"] = "Lista de Tareas";
 }
 
+@using ManejoTareas.Helpers
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>@ViewData["Title"]</h1>
-        <a asp-action="Create" class="btn btn-primary">Nueva Tarea</a>
+        @if (User.HasClaim("permiso", Permisos.TareasCrear) || User.IsInRole("Administrador"))
+        {
+            <a asp-action="Create" class="btn btn-primary">Nueva Tarea</a>
+        }
     </div>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
 
     @if (Model.Count == 0)
     {
@@ -41,15 +49,28 @@
                         <td>@tarea.FechaCreacion.ToString("dd/MM/yyyy")</td>
                         <td class="text-center">
                             <a asp-action="Details" asp-route-id="@tarea.Id" class="btn btn-sm btn-info">Ver</a>
-                            <a asp-action="Edit" asp-route-id="@tarea.Id" class="btn btn-sm btn-warning">Editar</a>
-                            <form asp-action="ToggleCompletada" asp-route-id="@tarea.Id" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-sm @(tarea.Completada ? "btn-secondary" : "btn-success")">
-                                    @(tarea.Completada ? "Deshacer" : "Completar")
-                                </button>
-                            </form>
-                            <form asp-action="Delete" asp-route-id="@tarea.Id" method="post" class="d-inline" onsubmit="return confirm('Eliminar esta tarea?')">
-                                <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
-                            </form>
+                            @if (User.HasClaim("permiso", Permisos.TareasEditar) || User.IsInRole("Administrador"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@tarea.Id" class="btn btn-sm btn-warning">Editar</a>
+                            }
+                            @if (User.HasClaim("permiso", Permisos.TareasCompletar) || User.IsInRole("Administrador"))
+                            {
+                                <form asp-action="ToggleCompletada" asp-route-id="@tarea.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm @(tarea.Completada ? "btn-secondary" : "btn-success")">
+                                        @(tarea.Completada ? "Deshacer" : "Completar")
+                                    </button>
+                                </form>
+                            }
+                            @if (User.HasClaim("permiso", Permisos.TareasEliminar) || User.IsInRole("Administrador"))
+                            {
+                                <form asp-action="Delete" asp-route-id="@tarea.Id" method="post" class="d-inline" onsubmit="return confirm('Eliminar esta tarea?')">
+                                    <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary" title="Sin permiso tareas.eliminar">No eliminar</span>
+                            }
                         </td>
                     </tr>
                 }

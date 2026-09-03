@@ -1,0 +1,56 @@
+@model ManejoTareas.DTOs.EditarUsuarioDto
+@{
+    ViewData["Title"] = "Editar Usuario";
+    var roles = ViewBag.Roles as List<ManejoTareas.Services.RolDto> ?? new();
+    var uid = (int)ViewBag.UsuarioId;
+}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-7">
+        <div class="card shadow">
+            <div class="card-header bg-warning"><h4 class="mb-0">Editar usuario #@uid</h4></div>
+            <div class="card-body">
+                <form asp-action="Edit" asp-route-id="@uid" method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input asp-for="Activo" class="form-check-input" />
+                        <label asp-for="Activo" class="form-check-label">Activo</label>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="NuevoPassword" class="form-label">Nueva contrasena (opcional)</label>
+                        <input asp-for="NuevoPassword" type="password" class="form-control" placeholder="Dejar vacio para no cambiar" />
+                        <span asp-validation-for="NuevoPassword" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles</label>
+                        <div class="border p-2 rounded">
+                            @foreach (var r in roles)
+                            {
+                                var checkedAttr = Model.RolesIds.Contains(r.Id) ? "checked" : "";
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="RolesIds" value="@r.Id" id="rol_@r.Id" @checkedAttr />
+                                    <label class="form-check-label" for="rol_@r.Id">
+                                        <strong>@r.Nombre</strong> <small class="text-muted">@r.Descripcion</small><br/>
+                                        <small class="text-muted">Permisos: @string.Join(", ", r.Permisos)</small>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Guardar</button>
+                    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -9,10 +9,21 @@ namespace ManejoTareas.Services;
 public class TareaService : ITareaService
 {
     private readonly AppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public TareaService(AppDbContext context)
+    public TareaService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    private int? CurrentUserId
+    {
+        get
+        {
+            var val = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(val, out var id) ? id : null;
+        }
     }
 
     public async Task<List<TareaDto>> ObtenerTodasAsync()
@@ -54,7 +65,8 @@ public async Task<TareaDto> CrearAsync(CrearTareaDto dto)
                 Titulo = dto.Titulo,
                 Descripcion = dto.Descripcion,
                 Completada = false,
-                FechaCreacion = DateTime.UtcNow
+                FechaCreacion = DateTime.UtcNow,
+                UsuarioId = CurrentUserId
             };
 
         _context.Tareas.Add(tarea);

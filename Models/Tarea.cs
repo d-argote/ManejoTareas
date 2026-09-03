@@ -26,4 +26,11 @@ public class Tarea
 
     [Column("fecha_actualizacion")]
     public DateTime? FechaActualizacion { get; set; }
+
+    // Propietario (para RLS y trazabilidad)
+    [Column("usuario_id")]
+    public int? UsuarioId { get; set; }
+
+    [ForeignKey(nameof(UsuarioId))]
+    public Usuario? Usuario { get; set; }
 }

@@ -17,6 +17,8 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
+        if (User.Identity?.IsAuthenticated != true)
+            return RedirectToAction("Login", "Auth");
         var tareas = await _tareaService.ObtenerTodasAsync();
         return View(tareas);
     }

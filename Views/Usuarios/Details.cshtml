@@ -1,0 +1,32 @@
+@model ManejoTareas.DTOs.UsuarioDto
+@{
+    ViewData["Title"] = "Detalle Usuario";
+}
+<div class="container mt-4">
+    <h2>@Model.Nombre <small class="text-muted">#@Model.Id</small></h2>
+    <div class="card mt-3">
+        <div class="card-body">
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Estado:</strong> @(Model.Activo ? "Activo" : "Inactivo")</p>
+            <p><strong>Creado:</strong> @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+            <p><strong>Ultimo acceso:</strong> @(Model.UltimoAcceso?.ToString("dd/MM/yyyy HH:mm") ?? "-")</p>
+            <p><strong>Roles:</strong>
+                @foreach (var r in Model.Roles)
+                {
+                    <span class="badge bg-primary me-1">@r</span>
+                }
+            </p>
+            <p><strong>Permisos efectivos:</strong><br/>
+                @foreach (var p in Model.Permisos)
+                {
+                    <span class="badge bg-secondary me-1 mb-1">@p</span>
+                }
+            </p>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+            <a asp-action="GestionarPermisos" asp-route-id="@Model.Id" class="btn btn-dark">Gestionar permisos</a>
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+</div>

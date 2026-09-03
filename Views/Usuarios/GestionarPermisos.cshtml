@@ -1,0 +1,42 @@
+@model ManejoTareas.DTOs.AsignarRolesDto
+@{
+    ViewData["Title"] = "Gestionar Permisos";
+    var usuario = ViewBag.Usuario as ManejoTareas.DTOs.UsuarioDto;
+    var roles = ViewBag.Roles as List<ManejoTareas.Services.RolDto> ?? new();
+}
+<div class="container mt-4">
+    <h2>Permisos de @usuario?.Nombre <small class="text-muted">@usuario?.Email</small></h2>
+    <p class="text-muted">Permisos actuales: @string.Join(", ", usuario?.Permisos ?? new List<string>())</p>
+
+    <form asp-action="GestionarPermisos" method="post">
+        <input type="hidden" asp-for="UsuarioId" />
+        <div class="card">
+            <div class="card-header">Selecciona roles</div>
+            <div class="card-body">
+                @foreach (var r in roles)
+                {
+                    var isChecked = Model.RolesIds.Contains(r.Id) ? "checked" : "";
+                    <div class="form-check mb-2 p-2 border rounded">
+                        <input class="form-check-input" type="checkbox" name="RolesIds" value="@r.Id" id="rol_@r.Id" @isChecked />
+                        <label class="form-check-label" for="rol_@r.Id">
+                            <strong>@r.Nombre</strong> - <span class="text-muted">@r.Descripcion</span><br/>
+                            <small>Permisos incluidos:</small>
+                            @foreach (var perm in r.Permisos)
+                            {
+                                <span class="badge bg-light text-dark border me-1">@perm</span>
+                            }
+                        </label>
+                    </div>
+                }
+                <div class="alert alert-warning mt-3 small">
+                    <strong>Nota:</strong> Los permisos se derivan de los roles. El administrador tiene todos.
+                    Quitar el rol <code>Administrador</code> revocara permisos criticos como <code>usuarios.gestionar_permisos</code> y <code>tareas.eliminar</code>.
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Guardar permisos</button>
+            </div>
+        </div>
+    </form>
+</div>
