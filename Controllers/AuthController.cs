@@ -22,7 +22,7 @@ public class AuthController : Controller
     // Alias: /Auth/Login (conventional, case-insensitive igual pero se deja explícito)
     [HttpGet("login")]
     [HttpGet("~/Auth/Login")]
-3    public IActionResult Login(string? returnUrl = null)
+    public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToAction("Index", "Home");

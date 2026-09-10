@@ -1,339 +1,510 @@
-# Attribute Routing - ManejoTareas
-
-> Implementación de **Attribute Routing** para URLs limpias y amigables en el proyecto ManejoTareas (ASP.NET Core MVC 9.0).
-
+---
+layout: Conceptual
+title: Attribute Routing in ASP.NET Web API 2 | Microsoft Learn
+canonicalUrl: https://learn.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2
+ms.service: aspnet-framework
+feedback_system: Standard
+feedback_help_link_type: get-help-at-qna
+feedback_help_link_url: https://learn.microsoft.com/answers/tags/174/aspnet
+breadcrumb_path: /aspnet/breadcrumb/toc.json
+recommendations: true
+ms.topic: concept-article
+uhfHeaderId: MSDocsHeader-AspNet
+ms.subservice: web-api
+ms.update-cycle: 3650-days
+uid: web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2
+author: Rick-Anderson
+description: This topic discusses how to enable attribute routing in ASP.NET Web API 2 and describes various options for attribute routing.
+ms.author: tdykstra
+ms.date: 2014-01-20T00:00:00.0000000Z
+ms.assetid: 979d6c9f-0129-4e5b-ae56-4507b281b86d
+msc.legacyurl: /web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2
+msc.type: authoredcontent
+locale: en-us
+document_id: a732001c-b9a4-fe5f-badc-729f8ee8948b
+document_version_independent_id: 6e244de0-136c-799e-4a4a-b9979bd7c161
+updated_at: 2026-02-21T01:10:00.0000000Z
+original_content_git_url: https://github.com/dotnet/AspNetDocs/blob/live/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2.md
+gitcommit: https://github.com/dotnet/AspNetDocs/blob/a17ff7206eb08fc474fc1341e5b7ef628a0e5880/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2.md
+git_commit_id: a17ff7206eb08fc474fc1341e5b7ef628a0e5880
+site_name: Docs
+depot_name: MSDN.AspNetDocs
+page_type: conceptual
+toc_rel: ../../../toc.json
+pdf_url_template: https://learn.microsoft.com/pdfstore/en-us/MSDN.AspNetDocs/{branchName}{pdfName}
+feedback_product_url: ''
+word_count: 2041
+asset_id: web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2
+moniker_range_name: 
+monikers: []
+item_type: Content
+source_path: aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2.md
+cmProducts:
+- https://microsoft-devrel.poolparty.biz/DevRelOfferingOntology/43ab1a66-ffe1-45dd-a4cb-6580218ef802
+- https://authoring-docs-microsoft.poolparty.biz/devrel/4628cbd9-6f47-4ae1-b371-d34636609eaf
+spProducts:
+- https://authoring-docs-microsoft.poolparty.biz/devrel/bbc4fbf6-70c4-4d12-b47f-9360080c4977
+- https://authoring-docs-microsoft.poolparty.biz/devrel/be21deb8-8c64-44b0-b71f-2dc56ca7364f
+platformId: 2f54ceeb-8c48-99f3-a818-04109c1dda87
 ---
 
-## 1. Objetivo
+# Attribute Routing in ASP.NET Web API 2 | Microsoft Learn
 
-Reemplazar/ complementar el enrutamiento convencional (`MapControllerRoute` con patrón `{controller}/{action}/{id?}`) por **enrutamiento por atributos** (`[Route]`, `[HttpGet]`, `[HttpPost]`) que permite:
+*Routing* is how Web API matches a URI to an action. Web API 2 supports a new type of routing, called *attribute routing*. As the name implies, attribute routing uses attributes to define routes. Attribute routing gives you more control over the URIs in your web API. For example, you can easily create URIs that describe hierarchies of resources.
 
-- URLs semánticas y en español (`/tareas`, `/usuarios`, `/auth/login`, `/privacidad`, `/acerca`).
-- Control granular por acción (verbos HTTP explícitos).
-- Compatibilidad con URLs anteriores mediante **alias** (`~/Task/...`, `~/Usuarios/...`, `~/Auth/...`).
-- Mejor SEO y legibilidad.
+The earlier style of routing, called convention-based routing, is still fully supported. In fact, you can combine both techniques in the same project.
 
-Ver conceptos oficiales: https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/routing#attribute-routing
+This topic shows how to enable attribute routing and describes the various options for attribute routing. For an end-to-end tutorial that uses attribute routing, see [Create a REST API with Attribute Routing in Web API 2](create-a-rest-api-with-attribute-routing).
 
----
+## Prerequisites
 
-## 2. Cambios en `Program.cs`
+[Visual Studio 2017](https://visualstudio.microsoft.com/downloads/?utm_medium=microsoft&amp;utm_source=learn.microsoft.com&amp;utm_campaign=button+cta&amp;utm_content=download+vs2017) Community, Professional, or Enterprise edition
 
-### 2.1 Autenticación (rutas actualizadas)
+Alternatively, use NuGet Package Manager to install the necessary packages. From the **Tools** menu in Visual Studio, select **NuGet Package Manager**, then select **Package Manager Console**. Enter the following command in the Package Manager Console window:
 
-```csharp
-// Program.cs:24-34
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/auth/login";                // antes: /Auth/Login
-        options.LogoutPath = "/auth/logout";              // antes: /Auth/Logout
-        options.AccessDeniedPath = "/auth/acceso-denegado"; // antes: /Auth/AccesoDenegado
-        ...
-    });
-```
+`Install-Package Microsoft.AspNet.WebApi.WebHost`
 
-> Las rutas de cookie deben coincidir con las nuevas rutas por atributo. El sistema es case-insensitive, pero se usa minúsculas como canónico.
+## Why Attribute Routing?
 
-### 2.2 Habilitar Attribute Routing
+The first release of Web API used *convention-based* routing. In that type of routing, you define one or more route templates, which are basically parameterized strings. When the framework receives a request, it matches the URI against the route template. For more information about convention-based routing, see [Routing in ASP.NET Web API](routing-in-aspnet-web-api).
+
+One advantage of convention-based routing is that templates are defined in a single place, and the routing rules are applied consistently across all controllers. Unfortunately, convention-based routing makes it hard to support certain URI patterns that are common in RESTful APIs. For example, resources often contain child resources: Customers have orders, movies have actors, books have authors, and so forth. It's natural to create URIs that reflect these relations:
+
+`/customers/1/orders`
+
+This type of URI is difficult to create using convention-based routing. Although it can be done, the results don't scale well if you have many controllers or resource types.
+
+With attribute routing, it's trivial to define a route for this URI. You simply add an attribute to the controller action:
 
 ```csharp
-// Program.cs:112-114
-app.UseAuthentication();
-app.UseRlsContext();
-app.UseAuthorization();
-
-// Attribute Routing + Conventional Routing (fallback)
-app.MapControllers(); // Habilita Attribute Routing
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.Run();
+[Route("customers/{customerId}/orders")]
+public IEnumerable<Order> GetOrdersByCustomer(int customerId) { ... }
 ```
 
-- `AddControllersWithViews()` ya registra el servicio necesario.
-- `MapControllers()` es **obligatorio** para que los atributos `[Route]`, `[HttpGet]`, `[HttpPost]` tengan efecto.
-- Se mantiene `MapControllerRoute` como **fallback** para controladores no migrados o para que `/Home/Index` siga funcionando si faltara un alias.
+Here are some other patterns that attribute routing makes easy.
 
-> **Orden importa:** `MapControllers()` antes que `MapControllerRoute`.
+**API versioning**
 
----
+In this example, "/api/v1/products" would be routed to a different controller than "/api/v2/products".
 
-## 3. HomeController - Rutas Públicas
+`/api/v1/products``/api/v2/products`
 
-**Archivo:** `Controllers/HomeController.cs:8`
+**Overloaded URI segments**
 
-Sin ruta a nivel de controlador, cada acción define rutas absolutas (con `/` inicial):
+In this example, "1" is an order number, but "pending" maps to a collection.
 
-| Acción | Verbo | Rutas Attribute | Descripción |
-|--------|-------|----------------|-------------|
-| `Index` | `GET` | `/` , `/Home` , `/Home/Index` , `/inicio` | Página principal. Requiere auth, redirige a `/auth/login` si no autenticado. |
-| `Privacy` | `GET` | `/Home/Privacy` , `/Home/Privacidad` , `/privacidad` | Alias español |
-| `About` | `GET` | `/Home/About` , `/Home/Acerca` , `/acerca` | Alias español |
-| `Error` | `GET` | `/Home/Error` , `/error` | Con `[ResponseCache]` |
+`/orders/1``/orders/pending`
 
-**Ejemplo:**
+**Multiple parameter types**
+
+In this example, "1" is an order number, but "2013/06/16" specifies a date.
+
+`/orders/1``/orders/2013/06/16`
+
+## Enabling Attribute Routing
+
+To enable attribute routing, call **MapHttpAttributeRoutes** during configuration. This extension method is defined in the **System.Web.Http.HttpConfigurationExtensions** class.
 
 ```csharp
-[HttpGet("/")]
-[HttpGet("/Home")]
-[HttpGet("/Home/Index")]
-[HttpGet("/inicio")]
-public async Task<IActionResult> Index() { ... }
+using System.Web.Http;
 
-[HttpGet("/Home/Privacy")]
-[HttpGet("/privacidad")]
-public IActionResult Privacy() { ... }
-```
-
-> Uso de `"/"` al inicio hace la ruta **absoluta** (ignora prefijo de controlador). Si se usara `"Home/Privacy"` sin `/`, también sería absoluta cuando no hay `[Route]` en el controlador, pero con `/` es más explícito.
-
----
-
-## 4. AuthController - Autenticación
-
-**Archivo:** `Controllers/AuthController.cs:10`
-
-```csharp
-[Route("auth")]
-public class AuthController : Controller { ... }
-```
-
-Prefijo `auth` (minúsculas) → todas las acciones heredan `/auth/...`.
-
-| Acción | Verbo | Rutas | URL canónica | Alias convencional |
-|--------|-------|-------|--------------|--------------------|
-| `Login` (GET) | `GET` | `login` , `~/Auth/Login` | `GET /auth/login` | `GET /Auth/Login` |
-| `Login` (POST) | `POST` | `login` , `~/Auth/Login` | `POST /auth/login` | `POST /Auth/Login` |
-| `Registro` (GET) | `GET` | `registro` , `~/Auth/Registro` | `GET /auth/registro` | `GET /Auth/Registro` |
-| `Registro` (POST) | `POST` | `registro` , `~/Auth/Registro` | `POST /auth/registro` | `POST /Auth/Registro` |
-| `Logout` | `POST` | `logout` , `~/Auth/Logout` | `POST /auth/logout` | `POST /Auth/Logout` |
-| `AccesoDenegado` | `GET` | `acceso-denegado` , `~/Auth/AccesoDenegado` | `GET /auth/acceso-denegado` | `GET /Auth/AccesoDenegado` |
-
-**Notas:**
-
-- `Registro` mantiene compatibilidad con `/Auth/Registro` (Mayúscula R) aunque el canónico es `/auth/registro` (case-insensitive).
-- `acceso-denegado` usa guion para SEO vs `AccesoDenegado` camelCase. Ambos soportados mediante dos atributos.
-- `Logout` es solo `POST` con `ValidateAntiForgeryToken`.
-
-**Ejemplo:**
-
-```csharp
-[HttpGet("login")]
-[HttpGet("~/Auth/Login")]
-public IActionResult Login(string? returnUrl = null) { ... }
-
-[HttpGet("acceso-denegado")]
-[HttpGet("~/Auth/AccesoDenegado")]
-public IActionResult AccesoDenegado() { ... }
-```
-
-El `~` en `"~/Auth/Login"` indica ruta absoluta, ignorando el prefijo `auth`.
-
----
-
-## 5. TaskController - Tareas
-
-**Archivo:** `Controllers/TaskController.cs:11`
-
-```csharp
-[Authorize]
-[Route("tareas")]
-public class TaskController : Controller { ... }
-```
-
-Prefijo en español `tareas` → URLs amigables. Se mantienen alias `~/Task/...` para compatibilidad con vistas existentes (`asp-controller="Task"` generará ahora `/tareas` automáticamente).
-
-| Acción | Verbo | Permiso | Rutas Attribute | URL canónica |
-|--------|-------|---------|----------------|--------------|
-| `Index` | `GET` | `tareas.ver` | `""` , `~/Task` , `~/Task/Index` | `GET /tareas` |
-| `Details` | `GET` | `tareas.ver` | `{id:int}` , `detalle/{id:int}` , `~/Task/Details/{id:int}` | `GET /tareas/5` <br> `GET /tareas/detalle/5` |
-| `Create` (GET) | `GET` | `tareas.crear` | `crear` , `~/Task/Create` | `GET /tareas/crear` |
-| `Create` (POST) | `POST` | `tareas.crear` | `crear` , `~/Task/Create` | `POST /tareas/crear` |
-| `Edit` (GET) | `GET` | `tareas.editar` | `{id:int}/editar` , `editar/{id:int}` , `~/Task/Edit/{id:int}` | `GET /tareas/5/editar` <br> `GET /tareas/editar/5` |
-| `Edit` (POST) | `POST` | `tareas.editar` | `{id:int}/editar` , `editar/{id:int}` , `~/Task/Edit/{id:int}` | `POST /tareas/5/editar` |
-| `Delete` | `POST` | `tareas.eliminar` | `{id:int}/eliminar` , `eliminar/{id:int}` , `~/Task/Delete/{id:int}` | `POST /tareas/5/eliminar` |
-| `ToggleCompletada` | `POST` | `tareas.completar` | `{id:int}/toggle` , `toggle/{id:int}` , `~/Task/ToggleCompletada/{id:int}` | `POST /tareas/5/toggle` |
-
-**Puntos clave:**
-
-- `{id:int}` constraint asegura que solo números matcheen.
-- Doble patrón para editar (`{id}/editar` y `editar/{id}`) cubre ambos estilos REST.
-- Alias `~/Task/...` preserva URLs viejas tras migración.
-- `RedirectToAction(nameof(Index))` ahora genera `/tareas` por el atributo en `Index`.
-
-**Ejemplo:**
-
-```csharp
-[HttpGet("")]
-[HttpGet("~/Task")]
-[RequierePermiso(Permisos.TareasVer)]
-public async Task<IActionResult> Index() { ... }
-
-[HttpGet("{id:int}")]
-[HttpGet("detalle/{id:int}")]
-public async Task<IActionResult> Details(int id) { ... }
-
-[HttpPost("{id:int}/eliminar")]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Delete(int id) { ... }
-```
-
----
-
-## 6. UsuariosController - Administración de Usuarios
-
-**Archivo:** `Controllers/UsuariosController.cs:11`
-
-```csharp
-[Authorize]
-[Route("usuarios")]
-public class UsuariosController : Controller { ... }
-```
-
-| Acción | Verbo | Permiso | Rutas | URL canónica |
-|--------|-------|---------|-------|--------------|
-| `Index` | `GET` | `usuarios.ver` | `""` , `~/Usuarios` , `~/Usuarios/Index` | `GET /usuarios` |
-| `Details` | `GET` | `usuarios.ver` | `{id:int}` , `detalle/{id:int}` , `~/Usuarios/Details/{id:int}` | `GET /usuarios/5` |
-| `Create` (GET) | `GET` | `usuarios.crear` | `crear` , `~/Usuarios/Create` | `GET /usuarios/crear` |
-| `Create` (POST) | `POST` | `usuarios.crear` | `crear` , `~/Usuarios/Create` | `POST /usuarios/crear` |
-| `Edit` (GET) | `GET` | `usuarios.editar` | `{id:int}/editar` , `editar/{id:int}` , `~/Usuarios/Edit/{id:int}` | `GET /usuarios/5/editar` |
-| `Edit` (POST) | `POST` | `usuarios.editar` | `{id:int}/editar` , `editar/{id:int}` , `~/Usuarios/Edit/{id:int}` | `POST /usuarios/5/editar` |
-| `Delete` | `POST` | `usuarios.eliminar` | `{id:int}/eliminar` , `eliminar/{id:int}` , `~/Usuarios/Delete/{id:int}` | `POST /usuarios/5/eliminar` |
-| `GestionarPermisos` (GET) | `GET` | `usuarios.gestionar_permisos` | `{id:int}/permisos` , `permisos/{id:int}` , `~/Usuarios/GestionarPermisos/{id:int}` | `GET /usuarios/5/permisos` |
-| `GestionarPermisos` (POST) | `POST` | `usuarios.gestionar_permisos` | `{id:int}/permisos` , `permisos/{id:int}` , `~/Usuarios/GestionarPermisos` , `~/Usuarios/GestionarPermisos/{id:int}` | `POST /usuarios/5/permisos` |
-
-**Corrección:** Se eliminó el typo `using Microsoft .AspNetCore.Identity;` (espacio) → `using Microsoft.EntityFrameworkCore;` etc. El using no se usaba.
-
-**Ejemplo:**
-
-```csharp
-[HttpGet("")]
-[HttpGet("~/Usuarios")]
-public async Task<IActionResult> Index() { ... }
-
-[HttpGet("{id:int}/permisos")]
-[HttpGet("~/Usuarios/GestionarPermisos/{id:int}")]
-public async Task<IActionResult> GestionarPermisos(int id) { ... }
-```
-
----
-
-## 7. Comparativa Conventional vs Attribute
-
-| Aspecto | Conventional (`MapControllerRoute`) | Attribute Routing (actual) |
-|---------|-------------------------------------|----------------------------|
-| Definición | Centralizada en `Program.cs` con patrón `{controller}/{action}/{id?}` | Descentralizada, en cada controlador/acción con `[Route]` |
-| URL ejemplo Tareas | `/Task/Edit/5` | `/tareas/5/editar` (canónico) + alias `/Task/Edit/5` compatible |
-| URL ejemplo Auth | `/Auth/AccesoDenegado` | `/auth/acceso-denegado` + alias `/Auth/AccesoDenegado` |
-| Control | Poco granular | Por verbo HTTP (`[HttpGet]`, `[HttpPost]`), constraints (`{id:int}`) |
-| Legibilidad | Inglés, camelCase | Español, kebab-case (`acceso-denegado`) |
-| Mantenibilidad | Cambio global afecta todo | Cambio por controlador |
-
-**Se mantiene `MapControllerRoute` como fallback** para que cualquier ruta no cubierta por atributos aún funcione (por ejemplo, si se añade un nuevo controlador sin atributos). Los atributos tienen precedencia sobre la ruta convencional.
-
----
-
-## 8. Generación de URLs en Vistas
-
-Las vistas **no necesitan cambios** porque usan Tag Helpers:
-
-```html
-<a asp-controller="Task" asp-action="Index">Tareas</a>
-<a asp-action="Details" asp-route-id="@tarea.Id">Ver</a>
-<form asp-action="Delete" asp-route-id="@tarea.Id" method="post">
-```
-
-Con Attribute Routing:
-
-- `asp-controller="Task" asp-action="Index"` → genera `/tareas` (según `[HttpGet("")]` en `TaskController.Index`).
-- `asp-action="Details" asp-route-id="5"` → `/tareas/5` (según `[HttpGet("{id:int}")]`).
-- `asp-action="Edit" asp-route-id="5"` → `/tareas/5/editar`.
-- `asp-controller="Auth" asp-action="Login"` → `/auth/login`.
-
-Si se necesita URL absoluta, usar `Url.Action("Details","Task", new { id=5 })` → `/tareas/5`.
-
----
-
-## 9. Buenas Prácticas Aplicadas
-
-1.  **Prefijos coherentes:** `tareas`, `usuarios`, `auth` en minúsculas, sin mayúsculas.
-2.  **Verbos HTTP explícitos:** `[HttpGet]` vs `[HttpPost]` en lugar de `[Route]` genérico.
-3.  **Constraints:** `{id:int}` evita colisiones (`/tareas/crear` no se interpreta como id).
-4.  **Alias con `~/`:** Mantienen compatibilidad hacia atrás (`~/Task/...`).
-5.  **Rutas absolutas con `/`:** En `HomeController` para root `/`.
-6.  **Kebab-case para SEO:** `acceso-denegado` en lugar de `AccesoDenegado`.
-7.  **Mantener convenciones:** `MapControllers()` + `MapControllerRoute` híbrido.
-
----
-
-## 10. Verificación
-
-### 10.1 Compilación
-
-```bash
-dotnet build
-# 0 Warnings, 0 Errors
-```
-
-### 10.2 Probar rutas
-
-```bash
-dotnet run --urls "http://localhost:5293"
-```
-
-| URL a probar | Esperado | Controlador |
-|--------------|----------|-------------|
-| `http://localhost:5293/` | 200 - Home Index (si auth → redirect `/auth/login`) | Home |
-| `http://localhost:5293/inicio` | 200 - alias Home | Home |
-| `http://localhost:5293/privacidad` | 200 - Privacy | Home |
-| `http://localhost:5293/acerca` | 200 - About | Home |
-| `http://localhost:5293/auth/login` | 200 - Login | Auth |
-| `http://localhost:5293/Auth/Login` | 200 - alias (case-insensitive) | Auth |
-| `http://localhost:5293/auth/registro` | 200 - Registro | Auth |
-| `http://localhost:5293/auth/acceso-denegado` | 200 - Acceso denegado | Auth |
-| `http://localhost:5293/tareas` | 302 → `/auth/login` si no auth, 200 si auth | Task |
-| `http://localhost:5293/Task` | 302/200 - alias Task | Task |
-| `http://localhost:5293/tareas/crear` | 200 - Create (requiere permiso) | Task |
-| `http://localhost:5293/tareas/1` | 200/404 - Details | Task |
-| `http://localhost:5293/tareas/1/editar` | 200 - Edit | Task |
-| `http://localhost:5293/usuarios` | 200 - Usuarios Index | Usuarios |
-| `http://localhost:5293/usuarios/1/permisos` | 200 - Gestionar permisos | Usuarios |
-
-### 10.3 Herramienta de rutas
-
-Agregar en desarrollo para listar rutas:
-
-```csharp
-app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> sources) =>
+namespace WebApplication
 {
-    var endpoints = sources.SelectMany(s => s.Endpoints).OfType<RouteEndpoint>();
-    return Results.Json(endpoints.Select(e => new {
-        RoutePattern = e.RoutePattern.RawText,
-        DisplayName = e.DisplayName
-    }));
-});
+    public static class WebApiConfig
+    {
+        public static void Register(HttpConfiguration config)
+        {
+            // Web API routes
+            config.MapHttpAttributeRoutes();
+
+            // Other Web API configuration not shown.
+        }
+    }
+}
 ```
 
----
+Attribute routing can be combined with [convention-based](routing-in-aspnet-web-api) routing. To define convention-based routes, call the **MapHttpRoute** method.
 
-## 11. Referencias
+```csharp
+public static class WebApiConfig
+{
+    public static void Register(HttpConfiguration config)
+    {
+        // Attribute routing.
+        config.MapHttpAttributeRoutes();
 
-- ASP.NET Core Routing - Attribute Routing: https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/routing
-- Routing to controller actions: https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/routing
-- Constraints: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/routing#route-constraint-reference
+        // Convention-based routing.
+        config.Routes.MapHttpRoute(
+            name: "DefaultApi",
+            routeTemplate: "api/{controller}/{id}",
+            defaults: new { id = RouteParameter.Optional }
+        );
+    }
+}
+```
 
----
+For more information about configuring Web API, see [Configuring ASP.NET Web API 2](../advanced/configuring-aspnet-web-api).
 
-## 12. Checklist de Implementación
+### Note: Migrating From Web API 1
 
-- [x] `Program.cs:12` - `AddControllersWithViews()` (ya existía)
-- [x] `Program.cs:24-34` - Actualizado `LoginPath`, `LogoutPath`, `AccessDeniedPath` a `/auth/...`
-- [x] `Program.cs:112-114` - Agregado `app.MapControllers()` antes de `MapControllerRoute`
-- [x] `Controllers/HomeController.cs:8` - Attribute Routing con alias español
-- [x] `Controllers/AuthController.cs:10` - `[Route("auth")]` con verbos y alias `~/Auth/...`
-- [x] `Controllers/TaskController.cs:11` - `[Route("tareas")]` con alias `~/Task/...`
-- [x] `Controllers/UsuariosController.cs:11` - `[Route("usuarios")]` con alias `~/Usuarios/...`
-- [x] Documentación `Sources/Attribute_Routing.md` creada
-- [x] `dotnet build` verificado sin errores
+Prior to Web API 2, the Web API project templates generated code like this:
+
+```csharp
+protected void Application_Start()
+{
+    // WARNING - Not compatible with attribute routing.
+    WebApiConfig.Register(GlobalConfiguration.Configuration);
+}
+```
+
+If attribute routing is enabled, this code will throw an exception. If you upgrade an existing Web API project to use attribute routing, make sure to update this configuration code to the following:
+
+```csharp
+protected void Application_Start()
+{
+    // Pass a delegate to the Configure method.
+    GlobalConfiguration.Configure(WebApiConfig.Register);
+}
+```
+
+Note
+
+For more information, see [Configuring Web API with ASP.NET Hosting](../advanced/configuring-aspnet-web-api#webhost).
+
+## Adding Route Attributes
+
+Here is an example of a route defined using an attribute:
+
+```csharp
+public class OrdersController : ApiController
+{
+    [Route("customers/{customerId}/orders")]
+    [HttpGet]
+    public IEnumerable<Order> FindOrdersByCustomer(int customerId) { ... }
+}
+```
+
+The string "customers/{customerId}/orders" is the URI template for the route. Web API tries to match the request URI to the template. In this example, "customers" and "orders" are literal segments, and "{customerId}" is a variable parameter. The following URIs would match this template:
+
+- `http://localhost/customers/1/orders`
+- `http://localhost/customers/bob/orders`
+- `http://localhost/customers/1234-5678/orders`
+
+You can restrict the matching by using constraints, described later in this topic.
+
+Notice that the "{customerId}" parameter in the route template matches the name of the *customerId* parameter in the method. When Web API invokes the controller action, it tries to bind the route parameters. For example, if the URI is `http://example.com/customers/1/orders`, Web API tries to bind the value "1" to the *customerId* parameter in the action.
+
+A URI template can have several parameters:
+
+```csharp
+[Route("customers/{customerId}/orders/{orderId}")]
+public Order GetOrderByCustomer(int customerId, int orderId) { ... }
+```
+
+Any controller methods that do not have a route attribute use convention-based routing. That way, you can combine both types of routing in the same project.
+
+## HTTP Methods
+
+Web API also selects actions based on the HTTP method of the request (GET, POST, etc). By default, Web API looks for a case-insensitive match with the start of the controller method name. For example, a controller method named `PutCustomers` matches an HTTP PUT request.
+
+You can override this convention by decorating the method with any of the following attributes:
+
+- **[HttpDelete]**
+- **[HttpGet]**
+- **[HttpHead]**
+- **[HttpOptions]**
+- **[HttpPatch]**
+- **[HttpPost]**
+- **[HttpPut]**
+
+In the following example, Web API maps the CreateBook method to HTTP POST requests.
+
+```csharp
+[Route("api/books")]
+[HttpPost]
+public HttpResponseMessage CreateBook(Book book) { ... }
+```
+
+For all other HTTP methods, including non-standard methods, use the **AcceptVerbs** attribute, which takes a list of HTTP methods.
+
+```csharp
+// WebDAV method
+[Route("api/books")]
+[AcceptVerbs("MKCOL")]
+public void MakeCollection() { }
+```
+
+## Route Prefixes
+
+Often, the routes in a controller all start with the same prefix. For example:
+
+```csharp
+public class BooksController : ApiController
+{
+    [Route("api/books")]
+    public IEnumerable<Book> GetBooks() { ... }
+
+    [Route("api/books/{id:int}")]
+    public Book GetBook(int id) { ... }
+
+    [Route("api/books")]
+    [HttpPost]
+    public HttpResponseMessage CreateBook(Book book) { ... }
+}
+```
+
+You can set a common prefix for an entire controller by using the **[RoutePrefix]** attribute:
+
+```csharp
+[RoutePrefix("api/books")]
+public class BooksController : ApiController
+{
+    // GET api/books
+    [Route("")]
+    public IEnumerable<Book> Get() { ... }
+
+    // GET api/books/5
+    [Route("{id:int}")]
+    public Book Get(int id) { ... }
+
+    // POST api/books
+    [Route("")]
+    public HttpResponseMessage Post(Book book) { ... }
+}
+```
+
+Use a tilde (~) on the method attribute to override the route prefix:
+
+```csharp
+[RoutePrefix("api/books")]
+public class BooksController : ApiController
+{
+    // GET /api/authors/1/books
+    [Route("~/api/authors/{authorId:int}/books")]
+    public IEnumerable<Book> GetByAuthor(int authorId) { ... }
+
+    // ...
+}
+```
+
+The route prefix can include parameters:
+
+```csharp
+[RoutePrefix("customers/{customerId}")]
+public class OrdersController : ApiController
+{
+    // GET customers/1/orders
+    [Route("orders")]
+    public IEnumerable<Order> Get(int customerId) { ... }
+}
+```
+
+## Route Constraints
+
+Route constraints let you restrict how the parameters in the route template are matched. The general syntax is "{parameter:constraint}". For example:
+
+```csharp
+[Route("users/{id:int}")]
+public User GetUserById(int id) { ... }
+
+[Route("users/{name}")]
+public User GetUserByName(string name) { ... }
+```
+
+Here, the first route will only be selected if the "id" segment of the URI is an integer. Otherwise, the second route will be chosen.
+
+The following table lists the constraints that are supported.
+
+| Constraint | Description | Example |
+| --- | --- | --- |
+| alpha | Matches uppercase or lowercase Latin alphabet characters (a-z, A-Z) | {x:alpha} |
+| bool | Matches a Boolean value. | {x:bool} |
+| datetime | Matches a **DateTime** value. | {x:datetime} |
+| decimal | Matches a decimal value. | {x:decimal} |
+| double | Matches a 64-bit floating-point value. | {x:double} |
+| float | Matches a 32-bit floating-point value. | {x:float} |
+| guid | Matches a GUID value. | {x:guid} |
+| int | Matches a 32-bit integer value. | {x:int} |
+| length | Matches a string with the specified length or within a specified range of lengths. | {x:length(6)} {x:length(1,20)} |
+| long | Matches a 64-bit integer value. | {x:long} |
+| max | Matches an integer with a maximum value. | {x:max(10)} |
+| maxlength | Matches a string with a maximum length. | {x:maxlength(10)} |
+| min | Matches an integer with a minimum value. | {x:min(10)} |
+| minlength | Matches a string with a minimum length. | {x:minlength(10)} |
+| range | Matches an integer within a range of values. | {x:range(10,50)} |
+| regex | Matches a regular expression. | {x:regex(^\d{3}-\d{3}-\d{4}$)} |
+
+Notice that some of the constraints, such as "min", take arguments in parentheses. You can apply multiple constraints to a parameter, separated by a colon.
+
+```csharp
+[Route("users/{id:int:min(1)}")]
+public User GetUserById(int id) { ... }
+```
+
+### Custom Route Constraints
+
+You can create custom route constraints by implementing the **IHttpRouteConstraint** interface. For example, the following constraint restricts a parameter to a non-zero integer value.
+
+```csharp
+public class NonZeroConstraint : IHttpRouteConstraint
+{
+    public bool Match(HttpRequestMessage request, IHttpRoute route, string parameterName, 
+        IDictionary<string, object> values, HttpRouteDirection routeDirection)
+    {
+        object value;
+        if (values.TryGetValue(parameterName, out value) && value != null)
+        {
+            long longValue;
+            if (value is long)
+            {
+                longValue = (long)value;
+                return longValue != 0;
+            }
+
+            string valueString = Convert.ToString(value, CultureInfo.InvariantCulture);
+            if (Int64.TryParse(valueString, NumberStyles.Integer, 
+                CultureInfo.InvariantCulture, out longValue))
+            {
+                return longValue != 0;
+            }
+        }
+        return false;
+    }
+}
+```
+
+The following code shows how to register the constraint:
+
+```csharp
+public static class WebApiConfig
+{
+    public static void Register(HttpConfiguration config)
+    {
+        var constraintResolver = new DefaultInlineConstraintResolver();
+        constraintResolver.ConstraintMap.Add("nonzero", typeof(NonZeroConstraint));
+
+        config.MapHttpAttributeRoutes(constraintResolver);
+    }
+}
+```
+
+Now you can apply the constraint in your routes:
+
+```csharp
+[Route("{id:nonzero}")]
+public HttpResponseMessage GetNonZero(int id) { ... }
+```
+
+You can also replace the entire **DefaultInlineConstraintResolver** class by implementing the **IInlineConstraintResolver** interface. Doing so will replace all of the built-in constraints, unless your implementation of **IInlineConstraintResolver** specifically adds them.
+
+## Optional URI Parameters and Default Values
+
+You can make a URI parameter optional by adding a question mark to the route parameter. If a route parameter is optional, you must define a default value for the method parameter.
+
+```csharp
+public class BooksController : ApiController
+{
+    [Route("api/books/locale/{lcid:int?}")]
+    public IEnumerable<Book> GetBooksByLocale(int lcid = 1033) { ... }
+}
+```
+
+In this example, `/api/books/locale/1033` and `/api/books/locale` return the same resource.
+
+Alternatively, you can specify a default value inside the route template, as follows:
+
+```csharp
+public class BooksController : ApiController
+{
+    [Route("api/books/locale/{lcid:int=1033}")]
+    public IEnumerable<Book> GetBooksByLocale(int lcid) { ... }
+}
+```
+
+This is almost the same as the previous example, but there is a slight difference of behavior when the default value is applied.
+
+- In the first example ("{lcid:int?}"), the default value of 1033 is assigned directly to the method parameter, so the parameter will have this exact value.
+- In the second example ("{lcid:int=1033}"), the default value of "1033" goes through the model-binding process. The default model-binder will convert "1033" to the numeric value 1033. However, you could plug in a custom model binder, which might do something different.
+
+(In most cases, unless you have custom model binders in your pipeline, the two forms will be equivalent.)
+
+## Route Names
+
+In Web API, every route has a name. Route names are useful for generating links, so that you can include a link in an HTTP response.
+
+To specify the route name, set the **Name** property on the attribute. The following example shows how to set the route name, and also how to use the route name when generating a link.
+
+```csharp
+public class BooksController : ApiController
+{
+    [Route("api/books/{id}", Name="GetBookById")]
+    public BookDto GetBook(int id) 
+    {
+        // Implementation not shown...
+    }
+
+    [Route("api/books")]
+    public HttpResponseMessage Post(Book book)
+    {
+        // Validate and add book to database (not shown)
+
+        var response = Request.CreateResponse(HttpStatusCode.Created);
+
+        // Generate a link to the new book and set the Location header in the response.
+        string uri = Url.Link("GetBookById", new { id = book.BookId });
+        response.Headers.Location = new Uri(uri);
+        return response;
+    }
+}
+```
+
+## Route Order
+
+When the framework tries to match a URI with a route, it evaluates the routes in a particular order. To specify the order, set the **Order** property on the route attribute. Lower values are evaluated first. The default order value is zero.
+
+Here is how the total ordering is determined:
+
+1. Compare the **Order** property of the route attribute.
+2. Look at each URI segment in the route template. For each segment, order as follows:
+
+    1. Literal segments.
+    2. Route parameters with constraints.
+    3. Route parameters without constraints.
+    4. Wildcard parameter segments with constraints.
+    5. Wildcard parameter segments without constraints.
+3. In the case of a tie, routes are ordered by a case-insensitive ordinal string comparison ([OrdinalIgnoreCase](https://msdn.microsoft.com/library/system.stringcomparer.ordinalignorecase.aspx)) of the route template.
+
+Here is an example. Suppose you define the following controller:
+
+```csharp
+[RoutePrefix("orders")]
+public class OrdersController : ApiController
+{
+    [Route("{id:int}")] // constrained parameter
+    public HttpResponseMessage Get(int id) { ... }
+
+    [Route("details")]  // literal
+    public HttpResponseMessage GetDetails() { ... }
+
+    [Route("pending", RouteOrder = 1)]
+    public HttpResponseMessage GetPending() { ... }
+
+    [Route("{customerName}")]  // unconstrained parameter
+    public HttpResponseMessage GetByCustomer(string customerName) { ... }
+
+    [Route("{*date:datetime}")]  // wildcard
+    public HttpResponseMessage Get(DateTime date) { ... }
+}
+```
+
+These routes are ordered as follows.
+
+1. orders/details
+2. orders/{id}
+3. orders/{customerName}
+4. orders/{\*date}
+5. orders/pending
+
+Notice that "details" is a literal segment and appears before "{id}", but "pending" appears last because the **Order** property is 1. (This example assumes there are no customers named "details" or "pending". In general, try to avoid ambiguous routes. In this example, a better route template for `GetByCustomer` is "customers/{customerName}" )
+
+*/
