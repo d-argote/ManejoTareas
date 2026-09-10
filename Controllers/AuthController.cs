@@ -18,10 +18,8 @@ public class AuthController : Controller
         _usuarios = usuarios;
     }
 
-    // GET /auth/login
-    // Alias: /Auth/Login (conventional, case-insensitive igual pero se deja explícito)
+    // GET /auth/login  (case-insensitive: también responde a /Auth/Login)
     [HttpGet("login")]
-    [HttpGet("~/Auth/Login")]
     public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -31,7 +29,6 @@ public class AuthController : Controller
     }
 
     [HttpPost("login")]
-    [HttpPost("~/Auth/Login")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginDto dto, string? returnUrl = null)
     {
@@ -58,9 +55,8 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Home");
     }
 
-    // GET /auth/registro
+    // GET /auth/registro  (también responde a /Auth/Registro por case-insensitive)
     [HttpGet("registro")]
-    [HttpGet("~/Auth/Registro")]
     public IActionResult Registro()
     {
         // Registro publico opcional: si ya hay usuarios, solo admin puede crear. Para bootstrap permitimos registro si no hay usuarios.
@@ -68,7 +64,6 @@ public class AuthController : Controller
     }
 
     [HttpPost("registro")]
-    [HttpPost("~/Auth/Registro")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Registro(RegistroDto dto)
     {
@@ -108,9 +103,8 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Home");
     }
 
-    // POST /auth/logout
+    // POST /auth/logout  (también responde a /Auth/Logout)
     [HttpPost("logout")]
-    [HttpPost("~/Auth/Logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {

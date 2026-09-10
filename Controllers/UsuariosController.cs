@@ -17,10 +17,9 @@ public class UsuariosController : Controller
 
     public UsuariosController(IUsuarioService usuarios) => _usuarios = usuarios;
 
-    // GET /usuarios
-    // Alias: /Usuarios , /Usuarios/Index
+    // GET /usuarios  (también responde a /Usuarios por case-insensitive)
+    // Alias: /Usuarios/Index
     [HttpGet("")]
-    [HttpGet("~/Usuarios")]
     [HttpGet("~/Usuarios/Index")]
     [RequierePermiso(Permisos.UsuariosVer)]
     public async Task<IActionResult> Index()

@@ -38,7 +38,6 @@ public class HomeController : Controller
     [HttpGet("/Home/Privacy")]
     [HttpGet("/Home/Privacidad")]
     [HttpGet("/privacidad")]
-    [HttpGet("/privacidad/")]
     public IActionResult Privacy()
     {
         return View();
