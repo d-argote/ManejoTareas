@@ -2802,6 +2802,7 @@
         "net9.0"
       ],
       "sources": {
+        "/home/mrx/.local/share/mise/dotnet-root/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
