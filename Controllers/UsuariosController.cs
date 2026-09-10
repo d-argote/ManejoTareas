@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft .AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using ManejoTareas.Attributes;
@@ -11,13 +10,18 @@ using ManejoTareas.Services;
 namespace ManejoTareas.Controllers;
 
 [Authorize]
+[Route("usuarios")]
 public class UsuariosController : Controller
 {
     private readonly IUsuarioService _usuarios;
 
     public UsuariosController(IUsuarioService usuarios) => _usuarios = usuarios;
 
-    // GET /Usuarios -> requiere ver usuarios o ser admin
+    // GET /usuarios
+    // Alias: /Usuarios , /Usuarios/Index
+    [HttpGet("")]
+    [HttpGet("~/Usuarios")]
+    [HttpGet("~/Usuarios/Index")]
     [RequierePermiso(Permisos.UsuariosVer)]
     public async Task<IActionResult> Index()
     {
@@ -25,6 +29,11 @@ public class UsuariosController : Controller
         return View(lista);
     }
 
+    // GET /usuarios/5  o /usuarios/detalle/5
+    // Alias: /Usuarios/Details/5
+    [HttpGet("{id:int}")]
+    [HttpGet("detalle/{id:int}")]
+    [HttpGet("~/Usuarios/Details/{id:int}")]
     [RequierePermiso(Permisos.UsuariosVer)]
     public async Task<IActionResult> Details(int id)
     {
@@ -33,17 +42,21 @@ public class UsuariosController : Controller
         return View(u);
     }
 
+    // GET /usuarios/crear
+    // Alias: /Usuarios/Create
+    [HttpGet("crear")]
+    [HttpGet("~/Usuarios/Create")]
     [RequierePermiso(Permisos.UsuariosCrear)]
-    [HttpGet]
     public async Task<IActionResult> Create()
     {
         ViewBag.Roles = await _usuarios.ObtenerRolesAsync();
         return View(new CrearUsuarioDto());
     }
 
-    [RequierePermiso(Permisos.UsuariosCrear)]
-    [HttpPost]
+    [HttpPost("crear")]
+    [HttpPost("~/Usuarios/Create")]
     [ValidateAntiForgeryToken]
+    [RequierePermiso(Permisos.UsuariosCrear)]
     public async Task<IActionResult> Create(CrearUsuarioDto dto)
     {
         ViewBag.Roles = await _usuarios.ObtenerRolesAsync();
@@ -60,16 +73,18 @@ public class UsuariosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // GET /usuarios/5/editar
+    // Alias: /Usuarios/Edit/5
+    [HttpGet("{id:int}/editar")]
+    [HttpGet("editar/{id:int}")]
+    [HttpGet("~/Usuarios/Edit/{id:int}")]
     [RequierePermiso(Permisos.UsuariosEditar)]
-    [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
         var u = await _usuarios.ObtenerPorIdAsync(id);
         if (u == null) return NotFound();
 
         ViewBag.Roles = await _usuarios.ObtenerRolesAsync();
-        // Obtener rolesIds actuales via service (necesitamos consultar entidad completa)
-        // Usaremos ObtenerPorId y mapear a editar DTO
         var dto = new EditarUsuarioDto
         {
             Nombre = u.Nombre,
@@ -81,9 +96,11 @@ public class UsuariosController : Controller
         return View(dto);
     }
 
-    [RequierePermiso(Permisos.UsuariosEditar)]
-    [HttpPost]
+    [HttpPost("{id:int}/editar")]
+    [HttpPost("editar/{id:int}")]
+    [HttpPost("~/Usuarios/Edit/{id:int}")]
     [ValidateAntiForgeryToken]
+    [RequierePermiso(Permisos.UsuariosEditar)]
     public async Task<IActionResult> Edit(int id, EditarUsuarioDto dto)
     {
         ViewBag.Roles = await _usuarios.ObtenerRolesAsync();
@@ -100,9 +117,13 @@ public class UsuariosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [RequierePermiso(Permisos.UsuariosEliminar)]
-    [HttpPost]
+    // POST /usuarios/5/eliminar
+    // Alias: /Usuarios/Delete/5
+    [HttpPost("{id:int}/eliminar")]
+    [HttpPost("eliminar/{id:int}")]
+    [HttpPost("~/Usuarios/Delete/{id:int}")]
     [ValidateAntiForgeryToken]
+    [RequierePermiso(Permisos.UsuariosEliminar)]
     public async Task<IActionResult> Delete(int id)
     {
         var currentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -119,8 +140,12 @@ public class UsuariosController : Controller
     }
 
     // Gestion de roles/permisos
+    // GET /usuarios/5/permisos
+    // Alias: /Usuarios/GestionarPermisos/5
+    [HttpGet("{id:int}/permisos")]
+    [HttpGet("permisos/{id:int}")]
+    [HttpGet("~/Usuarios/GestionarPermisos/{id:int}")]
     [RequierePermiso(Permisos.UsuariosGestionarPermisos)]
-    [HttpGet]
     public async Task<IActionResult> GestionarPermisos(int id)
     {
         var u = await _usuarios.ObtenerPorIdAsync(id);
@@ -131,9 +156,12 @@ public class UsuariosController : Controller
         return View(new AsignarRolesDto { UsuarioId = id, RolesIds = rolesIds });
     }
 
-    [RequierePermiso(Permisos.UsuariosGestionarPermisos)]
-    [HttpPost]
+    [HttpPost("{id:int}/permisos")]
+    [HttpPost("permisos/{id:int}")]
+    [HttpPost("~/Usuarios/GestionarPermisos")]
+    [HttpPost("~/Usuarios/GestionarPermisos/{id:int}")]
     [ValidateAntiForgeryToken]
+    [RequierePermiso(Permisos.UsuariosGestionarPermisos)]
     public async Task<IActionResult> GestionarPermisos(AsignarRolesDto dto)
     {
         var currentId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var cid) ? cid : (int?)null;
@@ -151,12 +179,6 @@ public class UsuariosController : Controller
 
     private async Task<List<int>> ObtenerRoleIdsDelUsuario(int id)
     {
-        // Consulta directa al contexto via servicio: obtenemos todos los roles y filtramos por usuario en View
-        // Para simplificar, consultamos via reflection a DB? Pero tenemos el DTO con nombres no ids.
-        // Hacemos consulta directa rapido usando un hack: leer desde service interno no expone ids, asi que consultamos de nuevo con contexto
-        // En lugar de inyectar contexto aqui, usaremos el servicio ObtenerTodos y buscaremos, pero mejor consultar DB directamente
-        // Por ahora usaremos un truco: buscar en _usuarios.ObtenerRoles y luego mapear con nombres
-        // Necesitamos los ids, asi que agregamos metodo privado via HttpContext.RequestServices
         var db = HttpContext.RequestServices.GetRequiredService<Data.AppDbContext>();
         var ids = await db.UsuarioRoles.Where(ur => ur.UsuarioId == id).Select(ur => ur.RolId).ToListAsync();
         return ids;

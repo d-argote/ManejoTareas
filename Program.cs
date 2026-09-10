@@ -20,13 +20,13 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
            .AddInterceptors(interceptor);
 });
 
-// Auth
+// Auth - rutas actualizadas para Attribute Routing (/auth/login, etc.)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Auth/Login";
-        options.LogoutPath = "/Auth/Logout";
-        options.AccessDeniedPath = "/Auth/AccesoDenegado";
+        options.LoginPath = "/auth/login";
+        options.LogoutPath = "/auth/logout";
+        options.AccessDeniedPath = "/auth/acceso-denegado";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;
@@ -109,6 +109,8 @@ app.UseAuthentication();
 app.UseRlsContext();
 app.UseAuthorization();
 
+// Attribute Routing + Conventional Routing (fallback)
+app.MapControllers(); // Habilita Attribute Routing
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

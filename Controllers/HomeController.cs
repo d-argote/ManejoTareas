@@ -15,6 +15,15 @@ public class HomeController : Controller
         _tareaService = tareaService;
     }
 
+    // Attribute Routing: ruta principal y alias
+    // GET /          -> Index (root)
+    // GET /Home      -> Index
+    // GET /Home/Index-> Index
+    // GET /inicio    -> alias amigable
+    [HttpGet("/")]
+    [HttpGet("/Home")]
+    [HttpGet("/Home/Index")]
+    [HttpGet("/inicio")]
     public async Task<IActionResult> Index()
     {
         if (User.Identity?.IsAuthenticated != true)
@@ -23,16 +32,32 @@ public class HomeController : Controller
         return View(tareas);
     }
 
+    // GET /Home/Privacy
+    // GET /privacidad  -> alias español
+    // GET /Home/Privacidad
+    [HttpGet("/Home/Privacy")]
+    [HttpGet("/Home/Privacidad")]
+    [HttpGet("/privacidad")]
+    [HttpGet("/privacidad/")]
     public IActionResult Privacy()
     {
         return View();
     }
 
+    // GET /Home/About
+    // GET /acerca
+    [HttpGet("/Home/About")]
+    [HttpGet("/Home/Acerca")]
+    [HttpGet("/acerca")]
     public IActionResult About()
     {
         return View();
     }
 
+    // GET /Home/Error
+    // GET /error
+    [HttpGet("/Home/Error")]
+    [HttpGet("/error")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

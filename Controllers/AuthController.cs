@@ -6,6 +6,7 @@ using ManejoTareas.Services;
 
 namespace ManejoTareas.Controllers;
 
+[Route("auth")]
 public class AuthController : Controller
 {
     private readonly IAuthService _auth;
@@ -17,8 +18,11 @@ public class AuthController : Controller
         _usuarios = usuarios;
     }
 
-    [HttpGet]
-    public IActionResult Login(string? returnUrl = null)
+    // GET /auth/login
+    // Alias: /Auth/Login (conventional, case-insensitive igual pero se deja explícito)
+    [HttpGet("login")]
+    [HttpGet("~/Auth/Login")]
+3    public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToAction("Index", "Home");
@@ -26,7 +30,8 @@ public class AuthController : Controller
         return View(new LoginDto());
     }
 
-    [HttpPost]
+    [HttpPost("login")]
+    [HttpPost("~/Auth/Login")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginDto dto, string? returnUrl = null)
     {
@@ -53,14 +58,17 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Home");
     }
 
-    [HttpGet]
+    // GET /auth/registro
+    [HttpGet("registro")]
+    [HttpGet("~/Auth/Registro")]
     public IActionResult Registro()
     {
         // Registro publico opcional: si ya hay usuarios, solo admin puede crear. Para bootstrap permitimos registro si no hay usuarios.
         return View(new RegistroDto());
     }
 
-    [HttpPost]
+    [HttpPost("registro")]
+    [HttpPost("~/Auth/Registro")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Registro(RegistroDto dto)
     {
@@ -100,7 +108,9 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Home");
     }
 
-    [HttpPost]
+    // POST /auth/logout
+    [HttpPost("logout")]
+    [HttpPost("~/Auth/Logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
@@ -108,7 +118,10 @@ public class AuthController : Controller
         return RedirectToAction(nameof(Login));
     }
 
-    [HttpGet]
+    // GET /auth/acceso-denegado
+    // Alias: /Auth/AccesoDenegado
+    [HttpGet("acceso-denegado")]
+    [HttpGet("~/Auth/AccesoDenegado")]
     public IActionResult AccesoDenegado()
     {
         return View();
