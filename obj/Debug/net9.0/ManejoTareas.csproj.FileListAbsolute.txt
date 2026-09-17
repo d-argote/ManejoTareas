@@ -21,7 +21,6 @@
 /home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
 /home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/scopedcss/bundle/ManejoTareas.styles.css
 /home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/scopedcss/projectbundle/ManejoTareas.bundle.scp.css
-/home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/compressed/nc8zb6flrr-{0}-lugek5hnai-lugek5hnai.gz
 /home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/compressed/oemsgzad5v-{0}-61n19gt1b8-61n19gt1b8.gz
 /home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/compressed/vcc12kynn0-{0}-fr7q2aak1r-fr7q2aak1r.gz
 /home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/compressed/k5h2ghs3tf-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -186,3 +185,4 @@
 /home/mrx/Desktop/ManejoTareas/bin/Debug/net9.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 /home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/ManejoTa.12D81244.Up2Date
 /home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/ManejoTareas.sourcelink.json
+/home/mrx/Desktop/ManejoTareas/obj/Debug/net9.0/compressed/nc8zb6flrr-{0}-lugek5hnai-lugek5hnai.gz
