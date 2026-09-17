@@ -1,0 +1,23 @@
+@model ManejoTareas.DTOs.TareaDto
+
+<div class="card mb-3 shadow-sm @(Model.Completada ? "border-success" : "border-warning")">
+    <div class="card-body">
+        <h5 class="card-title @(Model.Completada ? "text-decoration-line-through text-muted" : "")">@Model.Titulo</h5>
+        <p class="card-text">@Model.Descripcion</p>
+        <span class="badge @(Model.Completada ? "bg-success" : "bg-warning text-dark")">
+            @(Model.Completada ? "Completada" : "Pendiente")
+        </span>
+        <small class="text-muted ms-2">ID: @Model.Id | @Model.FechaCreacion.ToString("dd/MM/yyyy")</small>
+        <div class="mt-2">
+            <a asp-controller="Tasks" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-info">Ver detalle</a>
+            @if (User.IsInRole("Admin") || User.IsInRole("Administrador"))
+            {
+                <form asp-controller="Tasks" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar esta tarea?')">
+                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@* Sobrecarga para Model = Tarea *@

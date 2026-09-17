@@ -9,6 +9,8 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Tarea> Tareas => Set<Tarea>();
+    // Alias para compatibilidad con enunciado que usa _context.Tasks
+    public DbSet<Tarea> Tasks => Set<Tarea>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<Rol> Roles => Set<Rol>();
     public DbSet<Permiso> Permisos => Set<Permiso>();
@@ -34,6 +36,7 @@ public class AppDbContext : DbContext
             entity.HasOne(e => e.Usuario).WithMany().HasForeignKey(e => e.UsuarioId).OnDelete(DeleteBehavior.SetNull);
             entity.HasIndex(e => e.UsuarioId);
         });
+        // TaskItem hereda de Tarea; no necesita mapeo separado (TPH). Se usa DbSet<Tarea> para persistir.
 
         // Usuarios
         modelBuilder.Entity<Usuario>(entity =>

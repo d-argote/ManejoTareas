@@ -1,0 +1,12 @@
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/ManejoTareas
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/appsettings.Development.json
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/appsettings.json
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/ManejoTareas.dll
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/ManejoTareas.runtimeconfig.json
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/ManejoTareas.pdb
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/Microsoft.EntityFrameworkCore.dll
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/Microsoft.EntityFrameworkCore.Abstractions.dll
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/Microsoft.EntityFrameworkCore.Relational.dll
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/Npgsql.dll
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/home/mrx/Desktop/ManejoTareas/bin/Release/net9.0/publish/ManejoTareas.deps.json

@@ -8,7 +8,7 @@ using ManejoTareas.Helpers;
 namespace ManejoTareas.Controllers;
 
 [Authorize]
-[Route("tareas")]
+[Route("Task")]
 public class TaskController : Controller
 {
     private readonly ITareaService _tareaService;
@@ -18,11 +18,9 @@ public class TaskController : Controller
         _tareaService = tareaService;
     }
 
-    // GET /tareas
-    // Alias: /Task , /Task/Index
+    // GET /Task
     [HttpGet("")]
-    [HttpGet("~/Task")]
-    [HttpGet("~/Task/Index")]
+    [HttpGet("Index")]
     [RequierePermiso(Permisos.TareasVer)]
     public async Task<IActionResult> Index()
     {
@@ -30,12 +28,9 @@ public class TaskController : Controller
         return View(tareas);
     }
 
-    // GET /tareas/5
-    // GET /tareas/detalle/5
-    // Alias: /Task/Details/5
+    // GET /Task/Details/5
+    [HttpGet("Details/{id:int}")]
     [HttpGet("{id:int}")]
-    [HttpGet("detalle/{id:int}")]
-    [HttpGet("~/Task/Details/{id:int}")]
     [RequierePermiso(Permisos.TareasVer)]
     public async Task<IActionResult> Details(int id)
     {
@@ -44,18 +39,17 @@ public class TaskController : Controller
         return View(tarea);
     }
 
-    // GET /tareas/crear
-    // Alias: /Task/Create
+    // GET /Task/Create
+    [HttpGet("Create")]
     [HttpGet("crear")]
-    [HttpGet("~/Task/Create")]
     [RequierePermiso(Permisos.TareasCrear)]
     public IActionResult Create()
     {
         return View();
     }
 
+    [HttpPost("Create")]
     [HttpPost("crear")]
-    [HttpPost("~/Task/Create")]
     [ValidateAntiForgeryToken]
     [RequierePermiso(Permisos.TareasCrear)]
     public async Task<IActionResult> Create(CrearTareaDto dto)
@@ -66,11 +60,10 @@ public class TaskController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET /tareas/5/editar  y /tareas/editar/5
-    // Alias: /Task/Edit/5
+    // GET /Task/Edit/5
+    [HttpGet("Edit/{id:int}")]
     [HttpGet("{id:int}/editar")]
     [HttpGet("editar/{id:int}")]
-    [HttpGet("~/Task/Edit/{id:int}")]
     [RequierePermiso(Permisos.TareasEditar)]
     public async Task<IActionResult> Edit(int id)
     {
@@ -88,9 +81,9 @@ public class TaskController : Controller
         return View(dto);
     }
 
+    [HttpPost("Edit/{id:int}")]
     [HttpPost("{id:int}/editar")]
     [HttpPost("editar/{id:int}")]
-    [HttpPost("~/Task/Edit/{id:int}")]
     [ValidateAntiForgeryToken]
     [RequierePermiso(Permisos.TareasEditar)]
     public async Task<IActionResult> Edit(int id, ActualizarTareaDto dto)
@@ -107,11 +100,10 @@ public class TaskController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // POST /tareas/5/eliminar
-    // Alias: /Task/Delete/5
+    // POST /Task/Delete/5
+    [HttpPost("Delete/{id:int}")]
     [HttpPost("{id:int}/eliminar")]
     [HttpPost("eliminar/{id:int}")]
-    [HttpPost("~/Task/Delete/{id:int}")]
     [ValidateAntiForgeryToken]
     [RequierePermiso(Permisos.TareasEliminar)]
     public async Task<IActionResult> Delete(int id)
@@ -121,11 +113,10 @@ public class TaskController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // POST /tareas/5/toggle
-    // Alias: /Task/ToggleCompletada/5
+    // POST /Task/ToggleCompletada/5
+    [HttpPost("ToggleCompletada/{id:int}")]
     [HttpPost("{id:int}/toggle")]
     [HttpPost("toggle/{id:int}")]
-    [HttpPost("~/Task/ToggleCompletada/{id:int}")]
     [ValidateAntiForgeryToken]
     [RequierePermiso(Permisos.TareasCompletar)]
     public async Task<IActionResult> ToggleCompletada(int id)

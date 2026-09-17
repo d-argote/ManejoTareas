@@ -50,6 +50,11 @@ public class AuthService : IAuthService
             if (ur.Rol != null)
             {
                 claims.Add(new Claim(ClaimTypes.Role, ur.Rol.Nombre));
+                // Alias para compatibilidad: "Administrador" <-> "Admin"
+                if (ur.Rol.Nombre == "Administrador")
+                    claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                if (ur.Rol.Nombre == "Admin")
+                    claims.Add(new Claim(ClaimTypes.Role, "Administrador"));
                 foreach (var rp in ur.Rol.RolPermisos)
                 {
                     if (rp.Permiso != null)
